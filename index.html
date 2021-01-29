@@ -1,15 +1,48 @@
-<script>
+<script type="module">
+  import { generateMusic } from './generate_music.js'
+
   async function main() {
     const midi = await navigator.requestMIDIAccess()
-    const output = midi.outputs.values().next().value  // first device
-    if (output) {
-      console.log('MIDI device:', output)
-      for (let index = 0; index < 3; index++) {
-        output.send([0x90, 50, 0x7f], window.performance.now() + index * 1000)
-        output.send([0x80, 60, 0x40], window.performance.now() + (index + 1) * 1000)
-      }
+    const midiOutput = midi.outputs.values().next().value  // first device
+    if (midiOutput) {
+      console.log('MIDI device:', midiOutput)
+      const output = new MidiOutput(midiOutput, 100)
+      generateMusic(output)
     } else {
       console.log('No MIDI device found.')
+    }
+  }
+
+  class MidiOutput {
+    constructor(output, tempo) {
+      // assuming 4 beats per bar
+      this.beatsPerMeasure = 4
+      this.beatNoteValue = 4 // quarter note
+      this.tempo = tempo // in bpm (beats per minute)
+      this.output = output
+      this.nextNoteTime = null
+    }
+
+    playNote(note, duration) {
+      duration = this._noteDurationToTimeDuration(duration)
+      if (!this.nextNoteTime) {
+        this.nextNoteTime = window.performance.now()
+      }
+      this.output.send([0x90, note, 0x7f], this.nextNoteTime)
+      const noteEndTime = this.nextNoteTime + duration
+      this.output.send([0x80, note, 0x40], noteEndTime)
+      this.nextNoteTime = noteEndTime
+    }
+
+    pause(output, duration) {
+      duration = this._noteDurationToTimeDuration(duration)
+      this.nextNoteTime += duration
+    }
+
+    _noteDurationToTimeDuration(noteDuration) {
+      const numberOfBeats = noteDuration / (1 / this.beatNoteValue)
+      const durationPerBeat = 60000 / this.tempo
+      return numberOfBeats * durationPerBeat
     }
   }
 
