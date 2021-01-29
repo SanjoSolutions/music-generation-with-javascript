@@ -19,3 +19,7 @@ You can set up a virtual MIDI device with the following steps:
 
 This device can now be used as a MIDI output
 for the script and as a MIDI input in a DAW.
+
+## Demo
+
+[Demo](https://sanjosolutions.github.io/midi-generation-with-javascript/)
