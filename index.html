@@ -1,0 +1,17 @@
+<script>
+  async function main() {
+    const midi = await navigator.requestMIDIAccess()
+    const output = midi.outputs.values().next().value  // first device
+    if (output) {
+      console.log('MIDI device:', output)
+      for (let index = 0; index < 3; index++) {
+        output.send([0x90, 50, 0x7f], window.performance.now() + index * 1000)
+        output.send([0x80, 60, 0x40], window.performance.now() + (index + 1) * 1000)
+      }
+    } else {
+      console.log('No MIDI device found.')
+    }
+  }
+
+  main()
+</script>
