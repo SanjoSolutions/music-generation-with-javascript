@@ -6,7 +6,7 @@
     const midiOutput = midi.outputs.values().next().value  // first device
     if (midiOutput) {
       console.log('MIDI device:', midiOutput)
-      const output = new MidiOutput(midiOutput, 100)
+      const output = new MidiOutput(midiOutput, 60)
       generateMusic(output)
     } else {
       console.log('No MIDI device found.')
@@ -34,7 +34,7 @@
       this.nextNoteTime = noteEndTime
     }
 
-    pause(output, duration) {
+    pause(duration) {
       duration = this._noteDurationToTimeDuration(duration)
       this.nextNoteTime += duration
     }
